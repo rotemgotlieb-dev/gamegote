@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPOSE - a real-time sand demo</title>
+<meta name="description" content="A browser sand demo running entirely on the GPU. Carve real dunes and watch them collapse at the angle of repose.">
+<style>
+  :root {
+    --sky: #f2ede4;
+    --sky-2: #e6ded1;
+    --card: #fffdfa;
+    --rule: #d9cfbe;
+    --ink: #241d16;
+    --ink-2: #5d5142;
+    --ink-3: #8b7d6a;
+    --sun: #b06a1c;
+    --shade: #574a6e;
+    --ok: #2f6b46;
+    --warn: #97671a;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --sky: #14110e; --sky-2: #1c1814; --card: #201b16; --rule: #3a3129;
+      --ink: #f0e9df; --ink-2: #b8ac9c; --ink-3: #8d8172;
+      --sun: #e0a05a; --shade: #a795c9; --ok: #6fbf90; --warn: #d9a852;
+    }
+  }
+  :root[data-theme="dark"] {
+    --sky: #14110e; --sky-2: #1c1814; --card: #201b16; --rule: #3a3129;
+    --ink: #f0e9df; --ink-2: #b8ac9c; --ink-3: #8d8172;
+    --sun: #e0a05a; --shade: #a795c9; --ok: #6fbf90; --warn: #d9a852;
+  }
+  :root[data-theme="light"] {
+    --sky: #f2ede4; --sky-2: #e6ded1; --card: #fffdfa; --rule: #d9cfbe;
+    --ink: #241d16; --ink-2: #5d5142; --ink-3: #8b7d6a;
+    --sun: #b06a1c; --shade: #574a6e; --ok: #2f6b46; --warn: #97671a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--sky);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 54rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; display: flex; flex-direction: column; gap: 3rem; }
+  .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+  h1 { font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 700; letter-spacing: -.028em; margin: .4rem 0 0; line-height: 1.08; text-wrap: balance; }
+  h2 { font-size: 1.15rem; font-weight: 650; letter-spacing: -.01em; margin: 0; }
+  p { margin: 0; color: var(--ink-2); max-width: 60ch; }
+  .lede { font-size: 1.1rem; color: var(--ink); max-width: 52ch; margin-top: .9rem; }
+  strong { color: var(--ink); font-weight: 640; }
+  section { display: flex; flex-direction: column; gap: 1.1rem; }
+  .head { border-top: 1px solid var(--rule); padding-top: 1.1rem; display: flex; flex-direction: column; gap: .35rem; }
+
+  .req { display: flex; gap: .8rem; align-items: flex-start; background: var(--sky-2); border: 1px solid var(--rule); border-left: 3px solid var(--warn); border-radius: 8px; padding: .85rem 1rem; }
+  .req p { font-size: .92rem; }
+  .req .tag { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--warn); font-weight: 700; white-space: nowrap; padding-top: .12rem; }
+
+  .versions { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .9rem; }
+  a.v { display: flex; flex-direction: column; gap: .45rem; text-decoration: none; color: inherit;
+        background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 1.1rem;
+        transition: border-color .15s ease, transform .15s ease; }
+  a.v:hover, a.v:focus-visible { border-color: var(--sun); transform: translateY(-2px); }
+  a.v:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+  a.v .id { font-family: var(--mono); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  a.v .nm { font-size: 1.02rem; font-weight: 650; letter-spacing: -.01em; }
+  a.v .ds { font-size: .87rem; color: var(--ink-2); }
+  a.v.current { border-color: var(--sun); border-width: 2px; padding: calc(1.1rem - 1px); }
+  a.v .badge { font-family: var(--mono); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; color: var(--sun); font-weight: 700; }
+
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .6rem 1.4rem; list-style: none; padding: 0; margin: 0; }
+  .controls li { display: flex; gap: .7rem; align-items: baseline; font-size: .95rem; color: var(--ink-2); border-bottom: 1px dotted var(--rule); padding-bottom: .5rem; }
+  .controls .what { color: var(--ink); font-weight: 600; }
+  kbd { font-family: var(--mono); font-size: .74rem; background: var(--sky-2); border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 5px; padding: .16rem .45rem; color: var(--ink); white-space: nowrap; }
+
+  .honest { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 1.15rem 1.25rem; display: flex; flex-direction: column; gap: .6rem; }
+  .honest h3 { margin: 0; font-size: .95rem; font-weight: 650; }
+  .honest ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .35rem; }
+  .honest li { font-size: .92rem; color: var(--ink-2); }
+
+  footer { border-top: 1px solid var(--rule); padding-top: 1.2rem; font-size: .84rem; color: var(--ink-3); display: flex; flex-direction: column; gap: .3rem; }
+  code { font-family: var(--mono); font-size: .85em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"><a href="/" style="color:inherit;text-decoration:none">Gote</a> &middot; work in progress</div>
+    <h1>REPOSE</h1>
+    <p class="lede">A desert that remembers what you did to it. Every dune, every ripple and every grain of shading is generated on the GPU at load; nothing here is a texture or a model someone drew.</p>
+    <p style="margin-top:.6rem">Carve into a slope and the sand does not just dent. It collapses, slides, and settles back to its <strong>angle of repose</strong>, the roughly 34 degrees at which dry sand stops sliding. That behaviour is the whole point of the demo.</p>
+  </header>
+
+  <div class="req">
+    <span class="tag">Before you click</span>
+    <p><strong>Desktop Chrome or Edge.</strong> This runs on WebGPU, which phones and Safari do not reliably support yet, and the controls need a trackpad or mouse. On an unsupported browser you will get a one-line message rather than a picture, which means it is working as designed, not broken.</p>
+  </div>
+
+  <section>
+    <div class="head">
+      <h2>Three versions, so you can see it being built</h2>
+      <p>Each is one self-contained file. Nothing is downloaded after the page loads.</p>
+    </div>
+    <div class="versions">
+      <a class="v" href="play/m0.html">
+        <span class="id">Milestone 0</span>
+        <span class="nm">Foundation</span>
+        <span class="ds">The engine, the camera, and the measuring instruments. Almost nothing to look at on purpose.</span>
+      </a>
+      <a class="v" href="play/m1.html">
+        <span class="id">Milestone 1</span>
+        <span class="nm">Terrain and light</span>
+        <span class="ds">The erg, the golden-hour sky, and the six-layer sand material. Beautiful and completely static.</span>
+      </a>
+      <a class="v current" href="play/m2.html">
+        <span class="id">Milestone 2</span>
+        <span class="nm">Deformation and carve</span>
+        <span class="badge">Start here</span>
+        <span class="ds">The sand becomes real. Carve it, pour it, watch avalanches run down a slipface and stop.</span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <h2>Controls</h2>
+      <p>All of it is trackpad-native. There is no menu you have to find first.</p>
+    </div>
+    <ul class="controls">
+      <li><kbd>press + drag</kbd><span class="what">Carve</span></li>
+      <li><kbd>two-finger scroll</kbd><span class="what">Orbit the basin</span></li>
+      <li><kbd>pinch</kbd><span class="what">Move in and out, 8 to 80 m</span></li>
+      <li><kbd>F1</kbd> or <kbd>`</kbd><span class="what">Open the settings panel</span></li>
+    </ul>
+    <p style="font-size:.92rem">The settings panel is where the demo shows its working. It has the four camera positions the whole project is graded against, a switch for each layer of the sand material so you can turn one off and see exactly what it was contributing, the wet-sand toggle, the brush size and the angle of repose itself, and the freezes that stop time so a frame can be measured.</p>
+  </section>
+
+  <section>
+    <div class="head"><h2>What is real yet, and what is not</h2></div>
+    <div class="honest">
+      <h3>Working now</h3>
+      <ul>
+        <li>Carving, and sand that avalanches back to its own repose angle instead of holding an impossible wall.</li>
+        <li>Pouring, which builds a cone through discrete slides rather than growing smoothly.</li>
+        <li>Carves that cast their own shadows, because the deformation is real geometry and not a decal.</li>
+        <li>Wet sand: darker, stands steeper, crumbles as it dries.</li>
+      </ul>
+      <h3 style="margin-top:.5rem">Not built yet</h3>
+      <ul>
+        <li><strong>The bending.</strong> Lifting a mass of sand into the air and throwing it is the centrepiece of the project and it is two milestones away. Right now you can only shape the ground.</li>
+        <li>Wind, drifting ripples, and the blowing saltation layer.</li>
+        <li>The post-processing chain, so the image is raw. No bloom, no depth of field, no film grain.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div>REPOSE is a technical demo, built in the browser with WebGPU. No textures, meshes or images ship with it.</div>
+    <div>Milestone 2 build, August 2026.</div>
+  </footer>
+
+</div>
+</body>
+</html>
