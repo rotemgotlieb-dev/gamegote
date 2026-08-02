@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/repose", "destination": "/desert", "permanent": true },
+    { "source": "/repose/", "destination": "/desert/", "permanent": true },
+    { "source": "/repose/play/m0.html", "destination": "/desert/play/m0.html", "permanent": true },
+    { "source": "/repose/play/m1.html", "destination": "/desert/play/m1.html", "permanent": true },
+    { "source": "/repose/play/m2.html", "destination": "/desert/play/m2.html", "permanent": true },
+    { "source": "/repose/play", "destination": "/desert/play", "permanent": true },
+    { "source": "/repose/:path*", "destination": "/desert/:path*", "permanent": true }
+  ]
+}
