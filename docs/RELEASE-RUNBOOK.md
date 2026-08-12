@@ -63,7 +63,7 @@ skin flag**: the wireframe skeleton is the ratified look, not a fallback to be f
 
 Confirm the flag names against the game repo's own parser before trusting them:
 
-    grep -o "(^|\[#&\])[a-z]*=1" ~/conductor/repos/sand-bending/src/**/*.js
+    grep -REo "(^|[#&])[a-z]+=1" ~/conductor/repos/sand-bending/src/
 
 ### 3. Append one entry to the release ledger
 
@@ -152,6 +152,14 @@ not to the landing page:
 
     for p in / /play/m0.html /play/m1.html /play/m2.html; do
       curl -sS -o /dev/null -w "%{http_code} %{redirect_url}\n" "https://gamegote.com/repose$p"
+    done
+
+And the SLASHLESS forms, which must 3xx to the slashed page and never serve it directly (the
+2026-08-11 Fable review found bare `/desert` serving the index with every relative link broken,
+while the battery only ever tested the slashed form):
+
+    for b in /desert /desert/play /repose; do
+      curl -sS -o /dev/null -w "%{http_code} %{redirect_url}  $b\n" "https://gamegote.com$b"
     done
 
 Then prove the deployed bytes are the bytes you checksummed:

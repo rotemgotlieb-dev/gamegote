@@ -1,7 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    { "source": "/repose", "destination": "/desert", "permanent": true },
+    { "source": "/desert", "destination": "/desert/", "permanent": true },
+    { "source": "/desert/play", "destination": "/desert/", "permanent": true },
+    { "source": "/repose", "destination": "/desert/", "permanent": true },
     { "source": "/repose/", "destination": "/desert/", "permanent": true },
     { "source": "/repose/play/m0.html", "destination": "/desert/play/m0.html", "permanent": true },
     { "source": "/repose/play/m1.html", "destination": "/desert/play/m1.html", "permanent": true },
@@ -9,7 +11,7 @@
     { "source": "/repose/play/m3.html", "destination": "/desert/play/m3.html", "permanent": true },
     { "source": "/repose/play/m3-pack.html", "destination": "/desert/play/m3-pack.html", "permanent": true },
     { "source": "/repose/play/latest.html", "destination": "/desert/play/latest.html", "permanent": true },
-    { "source": "/repose/play", "destination": "/desert/play", "permanent": true },
+    { "source": "/repose/play", "destination": "/desert/", "permanent": true },
     { "source": "/repose/:path*", "destination": "/desert/:path*", "permanent": true }
   ]
 }
