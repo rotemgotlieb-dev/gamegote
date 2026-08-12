@@ -43,9 +43,24 @@ engineering record cites by cksum.** Rewriting a frozen artifact to fix its bran
 citation to it, and these three files are precisely the "older versions" the site is meant to
 preserve. They are what those milestones were.
 
+## 2026-08-11: three entries added for v1.0, and the first time any of this went live
+
+`m3.html`, `m3-pack.html` and `latest.html` were added above the catch-all, following this file's own
+per-file convention. They carry no old inbound links (nothing was ever published at
+`/repose/play/m3.html`), so the catch-all underneath would already have routed them correctly. They
+are enumerated anyway because the convention is worth more than the two lines: the next person adding
+a build copies the pattern instead of deciding whether their file is special.
+
+**A correction to the record below.** Until 2026-08-11 this file said "nothing here has been pushed",
+and that stayed true for ten days: commit dc702aa existed only on the local checkout, `origin/main`
+sat at 2acc25a, and so the LIVE site still served `/repose/` with a 200 while `/desert/` returned a
+404. None of these redirects had ever run in production. Rotem authorized the deploy on the night of
+2026-08-11 ("upload all the progress"), which is when the rename, the redirects, and v1.0 all went
+live together. The lesson worth keeping: a committed redirect is not a live redirect, and this file
+described a mechanism that was not answering a single request.
+
 ## Verifying, after a deploy
 
-A deploy is a PUBLISH and therefore Rotem's click, never an agent's, so nothing here has been pushed.
 Once it is live, this is the check, and it must be run without a pipe so the exit status is the
 gate's own:
 
