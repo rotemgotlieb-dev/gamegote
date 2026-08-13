@@ -3,6 +3,10 @@
 Written 2026-08-11 with the v1.0 release. This is the mechanical recipe. Follow it exactly and a
 weekly version takes a few minutes and cannot silently break an old link.
 
+**Shipping v1.1 specifically?** Read `docs/SHIP-CHECKLIST.md` instead. It is this recipe with v1.1's
+own numbers, gates and edits filled in, and it names the three calls that are the owner's rather than
+a script's. This file stays the general recipe.
+
 **The versioning scheme, in the owner's words:** the lead build is **v1.0**, and it goes **v1.1,
 v1.2** weekly from here, "to make it feel more legit". The pre-v1 builds keep the names they
 shipped under (M0, M1, M2). They are not renamed in hindsight: the honest build log IS the point,

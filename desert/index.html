@@ -184,17 +184,67 @@
 
   <section id="latest-slot" class="rise" style="animation-delay:.12s"></section>
 
+  <!-- ==========================================================================
+       CONTROLS. Rewritten 2026-08-13 on branch v1.1-prep for UI/UX plan item 1 /
+       wave item W1 (sand-bending docs/UIUX-PLAN-2026-08-13.md): the shipped list
+       named seven controls and never named digging, the quick menu, or the map,
+       so a stranger could finish a session without finding one of the project's
+       two named strengths.
+
+       *** THIS BLOCK DESCRIBES THE v1.1 PACK, NOT THE PACK THAT IS LIVE. ***
+
+       Every row was read off the COMPOSED pack, cksum 1221556362 (sand-bending
+       dist/index.html at gd-cofounder-2026-08-13, MERGE WINDOW 4 / DECISIONS
+       W10-31), not off a plan or a roadmap. The live pack today is v1.0, cksum
+       334081415, and it contains NONE of the following: the quick menu, the E
+       map, the C camera modes, the in-air glide re-press. Verified by grepping
+       the live pack: KeyE 0, KeyC 0, quickmenu 0, glideEntry 0.
+
+       SO: THIS BLOCK AND THE v1.1 PACK SHIP IN THE SAME COMMIT, OR THE PAGE
+       LIES TO PLAYERS. Ordering is gated in docs/SHIP-CHECKLIST.md.
+
+       Per-row provenance, so the next hand can re-check instead of trusting:
+         drag / ALT       src/input/brushkit.js:38-46 (held-modifier polarity),
+                          src/input/input.js:502-537, FSM table input.js:15-16
+         [ and ]          src/input/input.js:521
+         quick menu       src/ui/quickmenu.js:408 (fixed, left 18 / bottom 18),
+                          :437-507 (build or dig, brush size, sand, wet, brushes)
+         E                src/ui/map.js:210 MAP_KEY = 'KeyE', :728 toggle,
+                          :738 Escape closes, :747-752 digits travel
+         destinations     src/ui/map.js:249-264, THE PLAINS and THE MOUNTAINS
+         C                src/camera/orbit.js:443, five modes, DECISIONS W10-29
+         SPACE re-press   locomotion.js:414 (mode === 'repress' && jumpAir),
+                          DECISIONS W10-30, ratified by the owner in ROADMAP 12
+         M                src/audio/ost.js:77, still MUTE and only mute
+         F1               src/ui/overlay.js:283
+       ========================================================================== -->
   <section class="rise" style="animation-delay:.16s">
     <h2>Controls</h2>
     <ul class="controls">
       <li><kbd>click</kbd><span class="what">Start the sound, once</span></li>
       <li><kbd>W A S D</kbd><span class="what">Walk</span></li>
       <li><kbd>SHIFT</kbd><span class="what">Run</span></li>
-      <li><kbd>SPACE</kbd><span class="what">Tap to jump</span></li>
-      <li><kbd>SPACE</kbd><span class="what">Hold to glide</span></li>
+      <li><kbd>SPACE</kbd><span class="what">Tap to jump, hold for a higher one</span></li>
+      <li><kbd>SPACE</kbd><span class="what">Press it again while he is off the ground: he glides when he lands</span></li>
+      <li><kbd>drag</kbd><span class="what">Dig into the sand, or pile it up</span></li>
+      <li><kbd>ALT</kbd><span class="what">Hold it while you drag to flip digging into building</span></li>
+      <li><kbd>[ ]</kbd><span class="what">Smaller brush, bigger brush</span></li>
+      <li><kbd>menu</kbd><span class="what">Bottom-left corner: dig or build, brush size, wet sand, six brushes</span></li>
+      <li><kbd>E</kbd><span class="what">Open the world map, then 1 or 2 to travel there</span></li>
+      <!-- A-34 / ledger A201, the owner testing the composed pack on 2026-08-13:
+           "M doesn't work for map, but E does, and the map is really good."
+           His call is to bind BOTH. M is still only the mute key in 1221556362
+           (src/audio/ost.js:77; src/ui/map.js:210 binds E and nothing else), so
+           writing M here today would advertise a key that does nothing.
+           WHEN THE a202 LANE LANDS M ON THE MAP, this row replaces the E row
+           above and the mute row below is re-checked in the same edit:
+      <li><kbd>M / E</kbd><span class="what">Open the world map, then 1 or 2 to travel there</span></li>
+           -->
+      <li><kbd>C</kbd><span class="what">Change the camera: free, chase, over the shoulder, high above, first person</span></li>
       <li><kbd>M</kbd><span class="what">Mute</span></li>
       <li><kbd>F1</kbd><span class="what">Open the panel</span></li>
     </ul>
+    <p class="note">Right-click, or tap with two fingers, to wet the sand under the brush. Hold SHIFT and scroll to size the brush by hand. The map opens on <kbd>E</kbd> and closes on <kbd>E</kbd> or Escape, and it holds two places: the plains you start in, and the mountains, roughly 600 metres out.</p>
     <p class="note">The panel is where the demo shows its working: the camera positions the whole project is graded against, a switch for every layer of the sand material so you can turn one off and see what it was carrying, the wet-sand toggle, the brush size, the angle of repose itself, and the freezes that stop time so a single frame can be measured.</p>
   </section>
 
@@ -204,6 +254,17 @@
     <ol class="rail" id="rail"></ol>
   </section>
 
+  <!-- ==========================================================================
+       THE HONEST LEDGER, runbook step 5. The five lines marked v1.1 below are
+       TRUE OF THE COMPOSED PACK 1221556362 AND FALSE OF THE LIVE v1.0 PACK, so
+       they ship in the same commit as the pack, exactly like the Controls block.
+       Sources: DECISIONS W10-25 (map), W10-23 (quick menu), W10-29 (cameras),
+       W10-30 (glide re-press, slide totals, arrival caption),
+       src/character/character.js:625-698 (the ghost pass, A-33).
+       The "Not built yet" terraform line is the owner's own 2026-08-13 report on
+       this exact pack ("I can't terraform when I leave the spawn area"), with
+       the code reason at DECISIONS W10-22: one shared windowCentre, still at 0.
+       ========================================================================== -->
   <section>
     <h2>What is real, and what is not</h2>
     <div class="ledger">
@@ -211,6 +272,11 @@
         <h3>Working now</h3>
         <ul>
           <li>A figure that walks, runs, jumps and glides, and leaves footprints in sand it actually deforms.</li>
+          <!-- v1.1 --><li>A world map, and two places to stand in it: the plains you start in, and the mountains about 600 metres out.</li>
+          <!-- v1.1 --><li>Five camera angles, first person included, on one key.</li>
+          <!-- v1.1 --><li>A menu in the corner for the brush: dig or build, six brushes, wet sand, without opening a panel.</li>
+          <!-- v1.1 --><li>Behind a dune he reads as a faint tracing rather than vanishing, so you always know which side of it he is on.</li>
+          <!-- v1.1 --><li>The game counts your slides: how many, and the longest one.</li>
           <li>Music and wind, generated by the page itself. No audio file ships with the build.</li>
           <li>Carving, and sand that avalanches back to its own repose angle instead of holding an impossible wall.</li>
           <li>Pouring, which builds a cone through discrete slides rather than growing smoothly.</li>
@@ -223,6 +289,7 @@
         <ul>
           <li><strong>The bending.</strong> Lifting a mass of sand into the air and throwing it is the centre of the project and it is still ahead. Right now you shape the ground, you do not command it.</li>
           <li><strong>The figure's look.</strong> What walks the desert is its skeleton, on purpose. The finished character is a design job, not a coding job, so it is not being drawn in code.</li>
+          <!-- v1.1 --><li><strong>Terraforming the whole map.</strong> The sand answers your hand around where you started. Travel to the mountains and the ground there does not take a carve yet.</li>
           <li>Wind that drifts the ripples, and the blowing layer above the sand.</li>
           <li>The post-processing chain, so the image is raw. No bloom, no depth of field, no grain.</li>
         </ul>
@@ -243,6 +310,14 @@
     <section>
       <h2>Every build</h2>
       <ul>
+        <!-- v1.1, PREPARED, NOT LIVE. Uncomment in the same commit that lands
+             desert/play/v1.1.html and desert/play/v1.1-pack.html, and drop
+             "(latest)" from the v1.0 line below in the same edit. This list is
+             the no-JavaScript twin of the progression rail: a build that exists
+             in RELEASES and not here is a build a scripting-blocked reader
+             cannot reach.
+        <li><a href="play/v1.1.html">v1.1, cameras and the map (latest)</a></li>
+             -->
         <li><a href="play/m3.html">v1.0, character and score (latest)</a></li>
         <li><a href="play/m2.html">Milestone 2, deformation and carve</a></li>
         <li><a href="play/m1.html">Milestone 1, terrain and light</a></li>
@@ -300,6 +375,55 @@ var RELEASES = [
     cksum: 334081415,
     note: "Someone walks the desert. They run, jump and glide, and the sand keeps their footprints. The music and the wind are generated by the page itself, with nothing downloaded."
   }
+  /* ==========================================================================
+     v1.1, PREPARED AND DELIBERATELY NOT LIVE. Staged 2026-08-13, branch
+     v1.1-prep. DO NOT UNCOMMENT THIS BLOCK UNTIL THE PACK FILE EXISTS.
+
+     *** THE cksum AND THE date BELOW ARE PLACEHOLDERS AND ARE NOT FACTS. ***
+
+     The build this entry describes is the composed pack of MERGE WINDOW 4,
+     sand-bending dist/index.html at cksum 1221556362 on gd-cofounder-2026-08-13
+     (DECISIONS W10-31). That is NOT the pack that ships. The standing hold:
+     the FINAL pack cksum only exists after (a) the next merge window composes
+     the outstanding lanes and (b) the pacing-budget gate goes green on that
+     composed pack (DECISIONS W10-27 item 2, W10-28 item 6: playfloor's fps floor
+     is report-only today and a 2x regression landed green under it). Copying a
+     number from this comment into the ledger would record a build nobody
+     shipped, which is failure mode 2 in docs/RELEASE-RUNBOOK.md.
+
+     WHAT UNCOMMENTING COSTS, once the pack is copied per the runbook:
+       1. delete this comment's opening and closing markers
+       2. replace cksum 0 with the number printed by
+          `cksum desert/play/v1.1-pack.html`
+       3. replace date with
+          `git log -1 --format=%ad --date=short -- dist/index.html`
+          run in the sand-bending repo against the pack that was minted
+       4. settle `name` (his pick, see below)
+     Full steps and their order: docs/SHIP-CHECKLIST.md.
+
+     name: his call. Three candidates, all in the house's two-or-three-plain-
+     words style ("Foundation", "Terrain and light", "Deformation and carve",
+     "Character and score"):
+         "Cameras and the map"   <- staged default, names the two biggest
+         "Five cameras, one map"
+         "The map and the glider"
+
+     note: DERIVED, per the runbook, not written as marketing. Sources, in
+     order: DECISIONS W10-29 (five modes on C), W10-25 (the map and its two
+     destinations), W10-30 (the in-air re-press glide, the slide totals, the
+     arrival caption), src/character/character.js:625-698 (the A-33 ghost pass),
+     W10-28 (the one-frame camera lag that made the dash wobble, and its fix).
+     The long player-facing version is docs/RELEASE-NOTES-v1.1-DRAFT.md.
+  ,
+  {
+    id: "v1.1",
+    name: "Cameras and the map",
+    date: "PLACEHOLDER-NOT-A-FACT",
+    href: "play/v1.1.html",
+    cksum: 0,
+    note: "Five ways to watch him move, a map with two places to travel between, and a glide you deploy in mid-air. Behind a dune he now reads as a faint tracing instead of disappearing."
+  }
+     ========================================================================== */
 ];
 
 (function () {
