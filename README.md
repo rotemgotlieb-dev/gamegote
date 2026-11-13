@@ -46,6 +46,18 @@ plus one file. Do not hand-edit the markup for a release.
 
 ## Requirements for a visitor
 
-Desktop Chrome or Edge, on a keyboard. WebGPU is required, so phones and Safari are out for now. An
-unsupported browser gets a single line of text, which is the build's own fatal path, not a broken
-page.
+Desktop Chrome or Edge, on a keyboard. WebGPU is required, so phones and Safari are out for now.
+
+The launcher (`desert/play/m3.html`) checks before it hands over: a browser with no WebGPU adapter
+gets a plain page that says where the game plays and offers to send the link to a computer (the
+pack's own WebGL2 fallback fails its shaders and shows a black screen, seen 2026-11-12). A
+touch-only device that does have WebGPU is told the game is played with a keyboard, and can still
+start it. The builds themselves are untouched; their cksums stand.
+
+## The hub on a phone
+
+Most visitors arrive from a GoteDev Short on a phone. `index.html` leads with a muted loop recorded
+in the game (`media/gote-desert-loop.mp4`, H.264, with a VP9 `.webm` beside it), and on a
+touch-only screen (`(hover: none) and (pointer: coarse)`) swaps Press play for "Send it to my
+computer" (the share sheet, or email, text and copy). The follow links are the handles written in
+the vault's Channel Registry. `media/og-gote-desert.jpg` is the link preview. Nothing is collected.

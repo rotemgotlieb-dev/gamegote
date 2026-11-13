@@ -3,9 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gote - real-time graphics experiments</title>
-<meta name="description" content="Browser-native graphics and game experiments. Everything runs in real time on the GPU. Open a link and it is already playing.">
+<title>Gote Desert - a desert you explore and reshape</title>
+<meta name="description" content="Gote Desert is a desert you explore and reshape. Dig in, and the sand slides and settles the way real sand does. It plays in the browser on a computer, in Chrome or Edge.">
 <meta name="theme-color" content="#0b0906">
+<link rel="canonical" href="https://gamegote.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gote">
+<meta property="og:url" content="https://gamegote.com/">
+<meta property="og:title" content="Gote Desert - a desert you explore and reshape">
+<meta property="og:description" content="Dig in, and the sand slides and settles the way real sand does. Plays in the browser on a computer, in Chrome or Edge.">
+<meta property="og:image" content="https://gamegote.com/media/og-gote-desert.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A hole dug into the sand in Gote Desert, next to the words Gote Desert and gamegote.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@GoteDev">
 <style>
   :root {
     --ground: #0b0906;
@@ -43,11 +55,6 @@
   .hud { font-family: var(--mono); font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
          color: var(--sun); border-bottom: 1px solid var(--rule); padding-bottom: .75rem; }
 
-  header { display: flex; flex-direction: column; gap: .85rem; }
-  h1 { font-size: clamp(2.1rem, 8.5vw, 3.4rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.02;
-       margin: 0; text-wrap: balance; max-width: 18ch; }
-  .lede { font-size: clamp(1rem, 3.6vw, 1.1rem); color: var(--ink-2); max-width: 48ch; margin: 0; }
-
   section { display: flex; flex-direction: column; gap: 1rem; }
   h2 { font-family: var(--mono); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
        color: var(--ink-3); font-weight: 600; margin: 0; display: flex; align-items: center; gap: .8rem; }
@@ -56,14 +63,25 @@
   .proj { position: relative; background: linear-gradient(180deg, var(--panel-2), var(--panel));
           border: 1px solid var(--rule-hot); border-radius: 14px; padding: 1.4rem 1.25rem 1.25rem;
           display: flex; flex-direction: column; gap: .7rem; overflow: hidden; }
-  .proj::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 1px;
+  .proj::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; z-index: 2;
                   background: linear-gradient(90deg, transparent, var(--sun), transparent); opacity: .7; }
   .proj .row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
   .live { font-family: var(--mono); font-size: .62rem; letter-spacing: .16em; text-transform: uppercase;
           color: var(--live); border: 1px solid currentColor; border-radius: 999px; padding: .16rem .5rem; font-weight: 700; }
   .tech { font-family: var(--mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
-  .proj .nm { font-size: 1.6rem; font-weight: 700; letter-spacing: -.025em; margin: 0; }
   .proj .ds { color: var(--ink-2); margin: 0; max-width: 54ch; font-size: .97rem; }
+
+  /* The game card leads the page: the loop on top (beside the words on a wide screen). */
+  .hero { padding: 0; gap: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+  .media { position: relative; aspect-ratio: 4 / 3; background: var(--ground-2); overflow: hidden;
+           border-bottom: 1px solid var(--rule-hot); }
+  .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .media .tag { position: absolute; left: .7rem; bottom: .7rem; font-family: var(--mono); font-size: .58rem;
+                letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); background: rgba(11,9,6,.74);
+                border: 1px solid var(--rule-hot); border-radius: 999px; padding: .2rem .55rem; }
+  .body { padding: 1.1rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: .7rem; }
+  .nm { font-size: clamp(1.9rem, 7.4vw, 2.6rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin: 0; }
+  .one { font-size: clamp(1rem, 3.8vw, 1.12rem); color: var(--ink-2); margin: 0; max-width: 40ch; }
 
   .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .3rem; align-items: stretch; }
   a.start { flex: 1 1 14rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
@@ -81,19 +99,63 @@
     0%, 100% { box-shadow: 0 0 0 0 rgba(232,165,82,.34); }
     50%      { box-shadow: 0 0 22px 2px rgba(232,165,82,.20); }
   }
-  a.ghost { flex: 0 1 auto; display: flex; align-items: center; text-decoration: none; color: var(--ink-2);
-            border: 1px solid var(--rule-hot); border-radius: 10px; padding: .9rem 1.1rem;
-            font-family: var(--mono); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
-            transition: color .15s ease, border-color .15s ease, background .15s ease; }
-  a.ghost:hover, a.ghost:focus-visible { color: var(--ink); border-color: var(--sun); background: var(--panel-2); }
-  a.ghost:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+  .ghost { flex: 0 1 auto; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--ink-2);
+           border: 1px solid var(--rule-hot); border-radius: 10px; padding: .9rem 1.1rem; background: none; cursor: pointer;
+           font-family: var(--mono); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+           transition: color .15s ease, border-color .15s ease, background .15s ease; }
+  .ghost:hover, .ghost:focus-visible { color: var(--ink); border-color: var(--sun); background: var(--panel-2); }
+  .ghost:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
   .req { font-family: var(--mono); font-size: .68rem; color: var(--ink-3); letter-spacing: .04em; margin: .1rem 0 0; }
+  .req b { color: var(--ink-2); font-weight: 700; }
+
+  /* On a phone the game cannot run, so the card says where it plays and offers to send the link there. */
+  .where { font-family: var(--mono); font-size: .74rem; color: var(--ink-2); letter-spacing: .03em; line-height: 1.6; margin: .1rem 0 0; }
+  .send-panel { display: flex; flex-direction: column; gap: .55rem; border: 1px dashed var(--rule-hot); border-radius: 10px;
+                padding: .8rem; background: rgba(11,9,6,.35); }
+  .send-panel[hidden] { display: none; }
+  .send-opts { display: flex; gap: .5rem; }
+  .send-opts .ghost { flex: 1 1 0; padding: .75rem .4rem; font-size: .72rem; }
+
+  .follow { display: flex; flex-direction: column; gap: .55rem; border-top: 1px solid var(--rule); padding-top: .9rem; margin-top: .3rem; }
+  .follow p { margin: 0; font-family: var(--mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+  .follow-links { display: flex; gap: .5rem; }
+  .follow-links a { flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: .45rem; text-decoration: none;
+                    color: var(--ink-2); border: 1px solid var(--rule-hot); border-radius: 10px; padding: .7rem .4rem;
+                    font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+                    transition: color .15s ease, border-color .15s ease, background .15s ease; }
+  .follow-links a:hover, .follow-links a:focus-visible { color: var(--ink); border-color: var(--sun); background: var(--panel-2); }
+  .follow-links a:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+  .follow-links svg { width: 15px; height: 15px; flex: none; fill: currentColor; }
+
+  .for-touch { display: none !important; }
+  @media (hover: none) and (pointer: coarse) {
+    .for-desk { display: none !important; }
+    p.for-touch { display: block !important; }
+    div.for-touch, a.for-touch { display: flex !important; }
+    .send-panel.for-touch[hidden] { display: none !important; }
+    a.start.send { font-size: .86rem; letter-spacing: .1em; }
+  }
+
+  .statement { font-size: clamp(1.35rem, 5vw, 1.8rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin: 0; max-width: 22ch; text-wrap: balance; }
+  .lede { font-size: clamp(1rem, 3.6vw, 1.1rem); color: var(--ink-2); max-width: 48ch; margin: 0; }
+  section > .ghost { align-self: flex-start; }
 
   .soon { border: 1px dashed var(--rule-hot); border-radius: 12px; padding: 1.05rem 1.2rem; background: rgba(23,17,11,.5); }
   .soon p { margin: 0; font-family: var(--mono); font-size: .76rem; color: var(--ink-3); letter-spacing: .04em; line-height: 1.7; }
 
   footer { border-top: 1px solid var(--rule); padding-top: 1.1rem; font-family: var(--mono); font-size: .68rem;
            letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+
+  @media (max-width: 40rem) {
+    .wrap { padding-top: 1.1rem; gap: 2.2rem; }
+    .hud + .hero { margin-top: -1rem; }
+  }
+  @media (min-width: 60rem) {
+    .wrap { max-width: 66rem; }
+    .hero { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+    .media { aspect-ratio: 1 / 1; border-bottom: 0; border-right: 1px solid var(--rule-hot); }
+    .body { padding: 2rem 2rem 1.8rem; justify-content: center; gap: .8rem; }
+  }
 
   .rise { animation: rise .5s cubic-bezier(.2,.7,.3,1) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -108,29 +170,80 @@
 
   <div class="hud rise">Gote</div>
 
-  <header class="rise" style="animation-delay:.04s">
-    <h1>Real-time graphics, built in the browser</h1>
-    <p class="lede">Experiments that run on the GPU at sixty frames a second, with no plugin and nothing to install. Open a link and it is already running.</p>
-  </header>
-
-  <section class="rise" style="animation-delay:.09s">
-    <h2>Playable</h2>
-    <div class="proj">
+  <section class="proj hero rise" style="animation-delay:.04s" aria-labelledby="game-name">
+    <div class="media">
+      <video id="loop" autoplay muted loop playsinline preload="auto" width="720" height="720"
+             poster="/media/gote-desert-loop.jpg"
+             aria-label="Gote Desert, recorded in the game: a hole dug into the sand, then a trench carved, the walls sliding in">
+        <source src="/media/gote-desert-loop.mp4" type='video/mp4; codecs="avc1.640028"'>
+        <source src="/media/gote-desert-loop.webm" type='video/webm; codecs="vp9"'>
+      </video>
+      <span class="tag">Recorded in the game</span>
+    </div>
+    <div class="body">
       <div class="row">
         <span class="live">Playable now</span>
         <span class="tech">WebGPU &middot; in development</span>
       </div>
-      <p class="nm">Gote Desert</p>
-      <p class="ds">A desert that remembers what you did to it. Walk it, carve into a dune, and the sand collapses, slides, and settles back to the angle at which dry sand stops moving. Every grain of it is generated at load. Nothing here is a texture someone painted, and the music is written by the page as it plays.</p>
-      <div class="actions">
+      <h1 class="nm" id="game-name">Gote Desert</h1>
+      <p class="one">A desert you explore and reshape. Dig in, and the sand slides and settles the way real sand does.</p>
+
+      <div class="actions for-desk">
         <a class="start" href="/desert/play/latest.html">
           <span>Press play</span>
           <span class="arrow">&#9656;</span>
         </a>
         <a class="ghost" href="/desert/">Every build &amp; the details</a>
       </div>
-      <p class="req">Desktop Chrome or Edge, on a keyboard. WebGPU is required.</p>
+      <p class="req for-desk">Desktop Chrome or Edge, on a keyboard. WebGPU is required.</p>
+
+      <p class="where for-touch">It plays on a computer, in Chrome or Edge, with a keyboard.</p>
+      <div class="actions for-touch">
+        <a class="start send" id="send" aria-controls="send-panel" aria-expanded="false"
+           href="mailto:?subject=Gote%20Desert&amp;body=Gote%20Desert%2C%20to%20play%20on%20my%20computer%20in%20Chrome%20or%20Edge%3A%20https%3A%2F%2Fgamegote.com%2F">
+          <span>Send it to my computer</span>
+          <span class="arrow">&#9656;</span>
+        </a>
+      </div>
+      <div class="send-panel for-touch" id="send-panel" hidden>
+        <div class="send-opts">
+          <a class="ghost" href="mailto:?subject=Gote%20Desert&amp;body=Gote%20Desert%2C%20to%20play%20on%20my%20computer%20in%20Chrome%20or%20Edge%3A%20https%3A%2F%2Fgamegote.com%2F">Email it</a>
+          <a class="ghost" href="sms:?&amp;body=Gote%20Desert%2C%20to%20play%20on%20my%20computer%3A%20https%3A%2F%2Fgamegote.com%2F">Text it</a>
+          <button class="ghost" type="button" id="copy">Copy link</button>
+        </div>
+      </div>
+      <p class="req for-touch">Or type <b>gamegote.com</b> on your computer.</p>
+
+      <div class="follow">
+        <p>Follow GoteDev for the next build</p>
+        <div class="follow-links">
+          <a href="https://www.youtube.com/channel/UCmMocRgkAInVyaMGTsMPnbg?sub_confirmation=1" target="_blank" rel="noopener" aria-label="GoteDev on YouTube">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+            <span>YouTube</span>
+          </a>
+          <a href="https://www.instagram.com/gote.dev/" target="_blank" rel="noopener" aria-label="GoteDev on Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c-2.7 0-3 0-4 .1-1 0-1.8.2-2.4.5-.7.3-1.2.6-1.8 1.2S2.9 5.2 2.6 5.9c-.3.6-.5 1.4-.5 2.4C2 9.3 2 9.6 2 12.3s0 3 .1 4c0 1 .2 1.8.5 2.4.3.7.6 1.2 1.2 1.8s1.1.9 1.8 1.2c.6.3 1.4.5 2.4.5 1 .1 1.3.1 4 .1s3 0 4-.1c1 0 1.8-.2 2.4-.5.7-.3 1.2-.6 1.8-1.2s.9-1.1 1.2-1.8c.3-.6.5-1.4.5-2.4.1-1 .1-1.3.1-4s0-3-.1-4c0-1-.2-1.8-.5-2.4-.3-.7-.6-1.2-1.2-1.8s-1.1-.9-1.8-1.2c-.6-.3-1.4-.5-2.4-.5-1-.1-1.3-.1-4-.1zm0 1.8c2.7 0 3 0 4 .1.9 0 1.4.2 1.8.3.4.2.7.4 1.1.7.3.3.6.7.7 1.1.1.3.3.8.3 1.8.1 1 .1 1.3.1 4s0 3-.1 4c0 .9-.2 1.4-.3 1.8-.2.4-.4.7-.7 1.1-.3.3-.7.6-1.1.7-.3.1-.8.3-1.8.3-1 .1-1.3.1-4 .1s-3 0-4-.1c-.9 0-1.4-.2-1.8-.3-.4-.2-.7-.4-1.1-.7-.3-.3-.6-.7-.7-1.1-.1-.3-.3-.8-.3-1.8-.1-1-.1-1.3-.1-4s0-3 .1-4c0-.9.2-1.4.3-1.8.2-.4.4-.7.7-1.1.3-.3.7-.6 1.1-.7.3-.1.8-.3 1.8-.3 1-.1 1.3-.1 4-.1zm0 3.1a5.1 5.1 0 1 0 0 10.2 5.1 5.1 0 0 0 0-10.2zm0 8.4a3.3 3.3 0 1 1 0-6.6 3.3 3.3 0 0 1 0 6.6zm6.5-8.6a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"/></svg>
+            <span>Instagram</span>
+          </a>
+          <a href="https://x.com/GoteDev" target="_blank" rel="noopener" aria-label="GoteDev on X">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg>
+            <span>X</span>
+          </a>
+        </div>
+      </div>
     </div>
+  </section>
+
+  <section class="rise" style="animation-delay:.09s">
+    <h2>The game</h2>
+    <p class="lede">A desert that remembers what you did to it. Walk it, carve into a dune, and the sand collapses, slides, and settles back to the angle at which dry sand stops moving. Every grain of it is generated at load. Nothing here is a texture someone painted, and the music is written by the page as it plays.</p>
+    <a class="ghost for-touch" href="/desert/">Every build &amp; the details</a>
+  </section>
+
+  <section class="rise" style="animation-delay:.12s">
+    <h2>About Gote</h2>
+    <p class="statement">Real-time graphics, built in the browser</p>
+    <p class="lede">Experiments that run on the GPU at sixty frames a second, with no plugin and nothing to install. Open a link on a computer and it is already running.</p>
   </section>
 
   <section class="rise" style="animation-delay:.14s">
@@ -143,5 +256,57 @@
   <footer>Gote &middot; 2026</footer>
 
 </div>
+<script>
+/* The loop: honor reduced motion (no autoplay, a play control instead); otherwise nudge play(),
+   which some in-app browsers need even with autoplay set. */
+(function () {
+  var v = document.getElementById('loop');
+  if (!v) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    v.removeAttribute('autoplay'); v.pause(); v.setAttribute('controls', '');
+  } else {
+    var p = v.play(); if (p && p.catch) p.catch(function () {});
+  }
+})();
+
+/* Send it to my computer: the phone's own share sheet when it has one (Mail, Messages, AirDrop,
+   Notes), otherwise a small row of email, text and copy. Nothing is sent to us or stored. */
+(function () {
+  var LINK = 'https://gamegote.com/';
+  var send = document.getElementById('send');
+  var panel = document.getElementById('send-panel');
+  var copy = document.getElementById('copy');
+  if (!send || !panel) return;
+  function toggle() {
+    panel.hidden = !panel.hidden;
+    send.setAttribute('aria-expanded', String(!panel.hidden));
+  }
+  send.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (navigator.share) {
+      navigator.share({ title: 'Gote Desert', text: 'Gote Desert, to play on my computer in Chrome or Edge:', url: LINK })
+        .catch(function (err) { if (!err || err.name !== 'AbortError') toggle(); });
+    } else {
+      toggle();
+    }
+  });
+  function copied(ok) {
+    copy.textContent = ok ? 'Copied' : 'gamegote.com';
+    setTimeout(function () { copy.textContent = 'Copy link'; }, 2200);
+  }
+  function fallback() {
+    var t = document.createElement('textarea');
+    t.value = LINK; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(t); copied(ok);
+  }
+  if (copy) copy.addEventListener('click', function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(LINK).then(function () { copied(true); }, fallback);
+    } else { fallback(); }
+  });
+})();
+</script>
 </body>
 </html>

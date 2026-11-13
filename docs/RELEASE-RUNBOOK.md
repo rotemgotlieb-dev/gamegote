@@ -54,7 +54,10 @@ should: v1.0 came from tag `video-2026-08-11-skeleton-ost`), record the tag in t
 A pack reads its feature flags from the URL fragment, and a shared or bookmarked link cannot be
 trusted to carry one. The launcher is what makes a bare link boot the right experience.
 
-Copy `desert/play/m3.html`, change the target, and change nothing else. The v1.0 target is:
+Copy `desert/play/m3.html`, change the target, and change nothing else. The target is written three
+times: the `TARGET` line at the top, the `<noscript>` refresh, and the Continue link. The copy keeps
+the launcher's WebGPU check, so a browser that cannot run the build is told so instead of going
+black. The v1.0 target is:
 
     m3-pack.html#char=1&clips=1&audio=1
 
